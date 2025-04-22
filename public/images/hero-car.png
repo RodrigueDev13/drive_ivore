@@ -1,0 +1,40 @@
+<?php
+
+namespace App\Console\Commands;
+
+use Illuminate\Console\Command;
+use Illuminate\Support\Facades\File;
+
+class CreatePublicImagesFolders extends Command
+{
+    /**
+     * The name and signature of the console command.
+     *
+     * @var string
+     */
+    protected $signature = 'images:create-folders';
+
+    /**
+     * The console command description.
+     *
+     * @var string
+     */
+    protected $description = 'Crée les dossiers nécessaires pour les images publiques';
+
+    /**
+     * Execute the console command.
+     */
+    public function handle()
+    {
+        $publicImagesPath = public_path('images');
+
+        if (!File::exists($publicImagesPath)) {
+            File::makeDirectory($publicImagesPath, 0755, true);
+            $this->info('Dossier images créé avec succès dans public/');
+        } else {
+            $this->info('Le dossier images existe déjà dans public/');
+        }
+
+        return Command::SUCCESS;
+    }
+}
