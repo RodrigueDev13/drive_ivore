@@ -16,6 +16,8 @@ class Brand extends Model
      */
     protected $fillable = [
         'name',
+        'slug',
+        'description',
         'logo',
     ];
 
@@ -25,5 +27,21 @@ class Brand extends Model
     public function vehicles()
     {
         return $this->hasMany(Vehicle::class);
+    }
+    
+    /**
+     * Get the URL for the brand logo.
+     */
+    public function getLogoUrlAttribute()
+    {
+        if (empty($this->logo)) {
+            return asset('images/placeholder.jpg');
+        }
+        
+        if (str_starts_with($this->logo, 'http')) {
+            return $this->logo;
+        }
+        
+        return asset('storage/' . $this->logo);
     }
 }

@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hors ligne - Drive Ivoire</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            max-width: 600px;
+            background-color: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #10b981;
+            margin-bottom: 20px;
+        }
+        p {
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+        .icon {
+            font-size: 60px;
+            margin-bottom: 20px;
+            color: #10b981;
+        }
+        .btn {
+            display: inline-block;
+            background-color: #10b981;
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            text-decoration: none;
+            font-weight: 600;
+            margin-top: 20px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: #059669;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="icon">📶</div>
+        <h1>Vous êtes hors ligne</h1>
+        <p>Il semble que vous n'ayez pas de connexion Internet. Certaines fonctionnalités de Drive Ivoire ne sont pas disponibles en mode hors ligne.</p>
+        <p>Vérifiez votre connexion et réessayez.</p>
+        <a href="/" class="btn">Réessayer</a>
+    </div>
+
+    <script>
+        // Vérifier périodiquement si la connexion est rétablie
+        window.addEventListener('online', () => {
+            window.location.reload();
+        });
+        
+        document.querySelector('.btn').addEventListener('click', (e) => {
+            if (!navigator.onLine) {
+                e.preventDefault();
+                alert('Vous êtes toujours hors ligne. Veuillez vérifier votre connexion Internet.');
+            }
+        });
+    </script>
+</body>
+</html>

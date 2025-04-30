@@ -13,9 +13,15 @@
                     <a href="{{ route('vehicles.index') }}" class="bg-white text-drive-teal hover:bg-gray-100 px-6 py-3 rounded-lg font-semibold">
                         Voir les véhicules
                     </a>
+                    @auth
                     <a href="{{ route('vehicles.create') }}" class="bg-drive-yellow text-white hover:bg-opacity-90 px-6 py-3 rounded-lg font-semibold">
                         Vendre un véhicule
                     </a>
+                    @else
+                    <a href="{{ route('login', ['redirect' => 'vehicles.create', 'message' => 'Veuillez vous connecter pour vendre un véhicule']) }}" class="bg-drive-yellow text-white hover:bg-opacity-90 px-6 py-3 rounded-lg font-semibold">
+                        Vendre un véhicule
+                    </a>
+                    @endauth
                 </div>
             </div>
         </div>
@@ -110,18 +116,23 @@
     <!-- Types de véhicules -->
     <div class="py-12 bg-gray-100">
         <div class="container mx-auto px-4">
-            <h2 class="text-2xl font-bold mb-6">Parcourir par type</h2>
+            <h2 class="text-2xl font-bold mb-6">Type</h2>
 
-            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                @foreach($vehicleTypes as $type)
+            <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
+                @foreach($vehicleTypes->take(8) as $type)
                     <a href="{{ route('vehicles.by-type', $type) }}" class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                        <div class="w-16 h-16 mx-auto mb-2">
-                            <img src="{{ asset($type->icon) }}" alt="{{ $type->name }}" class="w-full h-full object-contain">
+                        <div class="w-16 h-16 mx-auto mb-2 flex items-center justify-center bg-gray-100 rounded-full">
+                            <img src="{{ $type->icon_url }}" alt="{{ $type->name }}" class="w-full h-full object-contain">
                         </div>
                         <h3 class="font-medium">{{ $type->name }}</h3>
-                        <p class="text-sm text-gray-500">{{ $type->vehicles_count }} véhicules</p>
                     </a>
                 @endforeach
+            </div>
+
+            <div class="mt-8 text-center">
+                <a href="{{ route('vehicle-types.index') }}" class="inline-block bg-gray-200 hover:bg-gray-300 text-gray-800 px-6 py-2 rounded-lg">
+                    Voir tous les types
+                </a>
             </div>
         </div>
     </div>
@@ -129,13 +140,13 @@
     <!-- Marques populaires -->
     <div class="py-12">
         <div class="container mx-auto px-4">
-            <h2 class="text-2xl font-bold mb-6">Marques populaires</h2>
+            <h2 class="text-2xl font-bold mb-6">Marques</h2>
 
             <div class="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-8 gap-4">
                 @foreach($brands as $brand)
                     <a href="{{ route('vehicles.by-brand', $brand) }}" class="bg-white p-4 rounded-lg shadow-sm hover:shadow-md transition-shadow text-center">
-                        <div class="w-16 h-16 mx-auto mb-2">
-                            <img src="{{ asset($brand->icon) }}" alt="{{ $brand->name }}" class="w-full h-full object-contain">
+                        <div class="w-16 h-16 mx-auto mb-2 flex items-center justify-center bg-gray-100 rounded-full">
+                            <img src="{{ $brand->logo_url }}" alt="{{ $brand->name }}" class="w-full h-full object-contain">
                         </div>
                         <h3 class="font-medium">{{ $brand->name }}</h3>
                     </a>

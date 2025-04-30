@@ -9,20 +9,53 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
+    public function up(): void
     {
         Schema::table('conversations', function (Blueprint $table) {
-            $table->unsignedBigInteger('recipient_id');
-            $table->unsignedBigInteger('user_one_id')->after('id');
-            $table->unsignedBigInteger('user_two_id')->after('user_one_id');
-            $table->timestamp('last_message_at')->nullable()->after('user_two_id');
+            // Vérifier si les colonnes existent déjà avant de les ajouter
+            if (!Schema::hasColumn('conversations', 'recipient_id')) {
+                $table->unsignedBigInteger('recipient_id');
+            }
+            
+            if (!Schema::hasColumn('conversations', 'user_one_id')) {
+                $table->unsignedBigInteger('user_one_id')->after('id');
+            }
+            
+            if (!Schema::hasColumn('conversations', 'user_two_id')) {
+                $table->unsignedBigInteger('user_two_id')->after(Schema::hasColumn('conversations', 'user_one_id') ? 'user_one_id' : 'id');
+            }
+            
+            if (!Schema::hasColumn('conversations', 'last_message_at')) {
+                $table->timestamp('last_message_at')->nullable()->after(Schema::hasColumn('conversations', 'user_two_id') ? 'user_two_id' : 'id');
+            }
         });
     }
 
-    public function down()
+    public function down(): void
     {
         Schema::table('conversations', function (Blueprint $table) {
-            $table->dropColumn(['user_one_id', 'user_two_id', 'last_message_at']);
+            // Vérifier si les colonnes existent avant de les supprimer
+            $columns = [];
+            
+            if (Schema::hasColumn('conversations', 'recipient_id')) {
+                $columns[] = 'recipient_id';
+            }
+            
+            if (Schema::hasColumn('conversations', 'user_one_id')) {
+                $columns[] = 'user_one_id';
+            }
+            
+            if (Schema::hasColumn('conversations', 'user_two_id')) {
+                $columns[] = 'user_two_id';
+            }
+            
+            if (Schema::hasColumn('conversations', 'last_message_at')) {
+                $columns[] = 'last_message_at';
+            }
+            
+            if (!empty($columns)) {
+                $table->dropColumn($columns);
+            }
         });
     }
 

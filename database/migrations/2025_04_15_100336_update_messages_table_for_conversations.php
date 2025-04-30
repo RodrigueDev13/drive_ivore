@@ -3,6 +3,7 @@
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
@@ -25,12 +26,30 @@ return new class extends Migration
 
             // Supprimer recipient_id et vehicle_id (car ils sont maintenant dans la table conversations)
             if (Schema::hasColumn('messages', 'recipient_id')) {
-                $table->dropForeign(['recipient_id']);
+                // Vérifier si la clé étrangère existe avant de la supprimer
+                try {
+                    $foreignKeys = DB::select("SHOW CREATE TABLE messages");
+                    $createTable = $foreignKeys[0]->{'Create Table'};
+                    if (strpos($createTable, 'CONSTRAINT `messages_recipient_id_foreign`') !== false) {
+                        $table->dropForeign(['recipient_id']);
+                    }
+                } catch (\Exception $e) {
+                    // Si une erreur se produit, on continue sans supprimer la clé étrangère
+                }
                 $table->dropColumn('recipient_id');
             }
 
             if (Schema::hasColumn('messages', 'vehicle_id')) {
-                $table->dropForeign(['vehicle_id']);
+                // Vérifier si la clé étrangère existe avant de la supprimer
+                try {
+                    $foreignKeys = DB::select("SHOW CREATE TABLE messages");
+                    $createTable = $foreignKeys[0]->{'Create Table'};
+                    if (strpos($createTable, 'CONSTRAINT `messages_vehicle_id_foreign`') !== false) {
+                        $table->dropForeign(['vehicle_id']);
+                    }
+                } catch (\Exception $e) {
+                    // Si une erreur se produit, on continue sans supprimer la clé étrangère
+                }
                 $table->dropColumn('vehicle_id');
             }
         });

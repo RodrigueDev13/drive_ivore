@@ -52,6 +52,75 @@
                     {{ number_format($vehicle->price, 0, ',', ' ') }} FCFA
                 </div>
 
+                <div class="flex flex-col space-y-4">
+                    <!-- Type d'annonce -->
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-600 font-medium">
+                            @if($vehicle->listing_type == 'vente')
+                                Vente
+                            @elseif($vehicle->listing_type == 'location')
+                                Location
+                            @elseif($vehicle->listing_type == 'vente_location')
+                                Vente et Location
+                            @else
+                                Vente
+                            @endif
+                        </span>
+                    </div>
+                    
+                    <!-- Année -->
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-13a1 1 0 10-2 0v4a1 1 0 00.293.707l2.828 2.829a1 1 0 101.415-1.415L11 9.586V5z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-600">{{ $vehicle->year }}</span>
+                    </div>
+                    
+                    <!-- Kilométrage -->
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M8 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM15 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z" />
+                            <path d="M3 4a1 1 0 00-1 1v10a1 1 0 001 1h1.05a2.5 2.5 0 014.9 0H10a1 1 0 001-1v-1h3a1 1 0 00.8-.4l3-4a1 1 0 00.2-.6V8a1 1 0 00-1-1h-3.05A2.5 2.5 0 0010 5.05V5a1 1 0 00-1-1H3z" />
+                        </svg>
+                        <span class="text-gray-600">{{ number_format($vehicle->mileage, 0, ',', ' ') }} km</span>
+                    </div>
+                    
+                    <!-- Transmission -->
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-600">{{ $vehicle->transmission }}</span>
+                    </div>
+                    
+                    <!-- Carburant -->
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-600">{{ $vehicle->fuel_type }}</span>
+                    </div>
+                    
+                    <!-- Localisation -->
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-600">{{ $vehicle->location }}</span>
+                    </div>
+                    
+                    <!-- Couleur -->
+                    <div class="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-500 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4 2a2 2 0 00-2 2v11a3 3 0 106 0V4a2 2 0 00-2-2H4zm1 14a1 1 0 100-2 1 1 0 000 2zm5-1.757l4.9-4.9a2 2 0 000-2.828L13.485 5.1a2 2 0 00-2.828 0L10 5.757v8.486zM16 18H9.071l6-6H16a2 2 0 012 2v2a2 2 0 01-2 2z" clip-rule="evenodd" />
+                        </svg>
+                        <span class="text-gray-600">{{ $vehicle->color }}</span>
+                    </div>
+                </div>
+
                 <div class="grid grid-cols-2 gap-4 mb-6">
                     <div class="bg-gray-100 p-3 rounded-lg">
                         <div class="text-sm text-gray-500">Type</div>
@@ -70,12 +139,26 @@
 
                     <div class="bg-gray-100 p-3 rounded-lg">
                         <div class="text-sm text-gray-500">Couleur</div>
-                        <div class="font-medium">{{ $vehicle->color }}</div>
+                        <div class="font-medium">{{ $vehicle->color ?? 'Non spécifiée' }}</div>
+                    </div>
+                    
+                    <div class="bg-gray-100 p-3 rounded-lg">
+                        <div class="text-sm text-gray-500">Localisation</div>
+                        <div class="font-medium flex items-center">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1 text-teal-500" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+                            </svg>
+                            {{ $vehicle->location ?? $vehicle->city ?? 'Non spécifiée' }}
+                        </div>
                     </div>
                 </div>
 
                 <div class="flex space-x-4 mb-6">
-                    <a href="{{ route('messages.create', ['vehicle_id' => $vehicle->id]) }}" class="flex-1 bg-teal-500 text-white py-3 px-4 rounded-lg text-center hover:bg-teal-600 transition">
+                    <a href="{{ route('messages.create', ['vehicle_id' => $vehicle->id]) }}" class="flex-1 bg-teal-500 text-white py-3 px-4 rounded-lg text-center hover:bg-teal-600 transition flex items-center justify-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M2 5a2 2 0 012-2h7a2 2 0 012 2v4a2 2 0 01-2 2H9l-3 3v-3H4a2 2 0 01-2-2V5z" />
+                            <path d="M15 7v2a4 4 0 01-4 4H9.828l-1.766 1.767c.28.149.599.233.938.233h2l3 3v-3h2a2 2 0 002-2V9a2 2 0 00-2-2h-1z" />
+                        </svg>
                         Contacter le vendeur
                     </a>
 
@@ -91,9 +174,8 @@
                                 </button>
                             </form>
                         @else
-                            <form action="{{ route('favorites.store') }}" method="POST">
+                            <form action="{{ route('favorites.store', $vehicle->id) }}" method="POST">
                                 @csrf
-                                <input type="hidden" name="vehicle_id" value="{{ $vehicle->id }}">
                                 <button type="submit" class="bg-gray-200 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-300 transition">
                                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
                                         <path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z" />
@@ -128,6 +210,27 @@
             </div>
         </div>
     </div>
+
+    @if($vehicle->listing_type == 'vente' || $vehicle->listing_type == 'vente_location')
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-gray-800">Prix de vente: {{ $vehicle->formatted_price }}</h2>
+        </div>
+    @endif
+    
+    @if($vehicle->listing_type == 'location' || $vehicle->listing_type == 'vente_location')
+        <div class="mt-8">
+            <h2 class="text-2xl font-bold text-gray-800">
+                Prix de location: {{ number_format($vehicle->rental_price, 0, ',', ' ') }} FCFA
+                @if($vehicle->rental_period == 'jour')
+                    / jour
+                @elseif($vehicle->rental_period == 'semaine')
+                    / semaine
+                @elseif($vehicle->rental_period == 'mois')
+                    / mois
+                @endif
+            </h2>
+        </div>
+    @endif
 
     @if($similarVehicles->count() > 0)
         <div class="mt-12">

@@ -21,25 +21,45 @@
                 </div>
                 <h2 class="text-lg font-bold">{{ $otherUser->name }}</h2>
             </div>
-            @if($conversation->vehicle_id)
-                <p class="text-sm text-gray-600 mt-1">À propos de: {{ $conversation->vehicle->title }}</p>
+            @if($conversation->vehicle_id && $conversation->vehicle)
+                <p class="text-sm text-gray-600 mt-1">À propos de: {{ $conversation->vehicle->title ?? 'Véhicule non disponible' }}</p>
             @endif
         </div>
 
         <div class="p-4 h-96 overflow-y-auto" id="messages-container">
-            @foreach($messages as $message)
-                <div class="mb-4 {{ $message->user_id === auth()->id() ? 'text-right' : 'text-left' }}">
-                    <div class="inline-block max-w-3/4 rounded-lg p-3 {{ $message->user_id === auth()->id() ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-800' }}">
-                        <p>{{ $message->content }}</p>
-                        <div class="mt-1 text-xs {{ $message->user_id === auth()->id() ? 'text-teal-100' : 'text-gray-500' }}">
-                            {{ $message->created_at->format('d/m/Y H:i') }}
-                            @if($message->user_id === auth()->id() && !is_null($message->read_at))
-                                · Lu
+            @if($messages->count() > 0)
+                @foreach($messages as $message)
+                    <div class="mb-4 {{ $message->user_id === auth()->id() ? 'text-right' : 'text-left' }}">
+                        <div class="flex items-start {{ $message->user_id === auth()->id() ? 'justify-end' : 'justify-start' }}">
+                            @if($message->user_id !== auth()->id())
+                                <div class="flex-shrink-0 mr-2">
+                                    <div class="w-8 h-8 bg-gray-200 rounded-full flex items-center justify-center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-4 h-4 text-gray-500">
+                                            <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                        </svg>
+                                    </div>
+                                </div>
                             @endif
+                            <div class="max-w-3/4">
+                                <div class="inline-block rounded-lg p-3 {{ $message->user_id === auth()->id() ? 'bg-teal-500 text-white' : 'bg-gray-100 text-gray-800' }}" data-message-id="{{ $message->id }}">
+                                    <p>{{ $message->content }}</p>
+                                    <div class="mt-1 text-xs {{ $message->user_id === auth()->id() ? 'text-teal-100' : 'text-gray-500' }}">
+                                        {{ $message->created_at->format('d/m/Y H:i') }}
+                                        @if($message->user_id === auth()->id() && \Schema::hasColumn('messages', 'read_at') && !is_null($message->read_at))
+                                            · Lu
+                                        @endif
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                @endforeach
+            @else
+                <div class="text-center text-gray-500 py-8">
+                    <p>Aucun message dans cette conversation.</p>
+                    <p class="text-sm mt-2">Envoyez un message pour démarrer la conversation.</p>
                 </div>
-            @endforeach
+            @endif
         </div>
 
         <div class="p-4 border-t border-gray-200">
@@ -59,11 +79,53 @@
     </div>
 </div>
 
+@push('scripts')
 <script>
-    // Faire défiler automatiquement vers le bas pour voir les derniers messages
+    // Script pour l'actualisation automatique de la page et le défilement vers le bas
     document.addEventListener('DOMContentLoaded', function() {
+        // Faire défiler vers le bas des messages au chargement de la page
         const messagesContainer = document.getElementById('messages-container');
-        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        if (messagesContainer) {
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+        
+        // Stocker l'ID de la conversation actuelle
+        const conversationId = {{ $conversation->id ?? 0 }};
+        let lastMessageId = 0;
+        
+        // Récupérer l'ID du dernier message affiché
+        const messages = document.querySelectorAll('[data-message-id]');
+        if (messages.length > 0) {
+            const lastMessage = messages[messages.length - 1];
+            lastMessageId = parseInt(lastMessage.getAttribute('data-message-id'));
+        }
+        
+        // Fonction pour vérifier les nouveaux messages dans cette conversation
+        function checkNewMessagesInConversation() {
+            fetch('/check-new-messages?last_id=' + lastMessageId + '&conversation_id=' + conversationId + '&_=' + new Date().getTime(), {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json',
+                    'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content')
+                },
+                credentials: 'same-origin'
+            })
+            .then(response => response.json())
+            .then(data => {
+                // S'il y a de nouveaux messages, actualiser la page
+                if (data.has_new_messages) {
+                    window.location.reload();
+                }
+            })
+            .catch(error => {
+                console.error('Erreur:', error);
+            });
+        }
+        
+        // Vérifier les nouveaux messages toutes les 5 secondes pour réduire la charge
+        setInterval(checkNewMessagesInConversation, 5000);
     });
 </script>
+@endpush
 @endsection

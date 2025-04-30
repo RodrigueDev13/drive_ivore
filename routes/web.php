@@ -13,6 +13,12 @@ use App\Http\Controllers\VehicleTypeController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\SearchController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AdminUserController;
+use App\Http\Controllers\AdminVehicleController;
+use App\Http\Controllers\AdminBrandController;
+use App\Http\Controllers\AdminVehicleTypeController;
+use App\Http\Controllers\AdminReviewController;
+use App\Http\Controllers\AdminMessageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,19 +56,23 @@ Route::controller(AuthController::class)->group(function () {
 Route::controller(VehicleController::class)->group(function () {
     Route::get('/vehicles', 'index')->name('vehicles.index');
     Route::get('/vehicles/{vehicle}', 'show')->name('vehicles.show');
-    Route::get('/brands/{brand}/vehicles', 'byBrand')->name('vehicles.by-brand');
-    Route::get('/types/{type}/vehicles', 'byType')->name('vehicles.by-type');
 });
+
+// Routes pour filtrer les véhicules par marque et type
+Route::get('/brands/{brand}/vehicles', [VehicleController::class, 'byBrand'])->name('vehicles.by-brand');
+Route::get('/types/{type}/vehicles', [VehicleController::class, 'byType'])->name('vehicles.by-type');
 
 // Routes publiques pour les marques et types de véhicules
 Route::get('/brands', [BrandController::class, 'index'])->name('brands.index');
 Route::get('/types', [VehicleTypeController::class, 'index'])->name('vehicle-types.index');
 
+// Route directe pour la création de véhicule (pour résoudre le problème d'accès)
+Route::get('/sell', [VehicleController::class, 'create'])->name('vehicles.create')->middleware('auth');
+
 // Routes protégées (nécessitent une authentification)
 Route::middleware(['auth'])->group(function () {
     // Routes pour les véhicules
     Route::controller(VehicleController::class)->group(function () {
-        Route::get('/vehicles/create', 'create')->name('vehicles.create');
         Route::post('/vehicles', 'store')->name('vehicles.store');
         Route::get('/vehicles/{vehicle}/edit', 'edit')->name('vehicles.edit');
         Route::put('/vehicles/{vehicle}', 'update')->name('vehicles.update');
@@ -74,20 +84,24 @@ Route::middleware(['auth'])->group(function () {
         Route::put('/vehicles/images/{image}/primary', 'setPrimaryImage')->name('vehicles.images.primary');
     });
 
+    // Routes pour les messages
+    Route::controller(MessageController::class)->group(function () {
+        Route::get('/messages', 'index')->name('messages.index');
+        Route::get('/messages/create', 'create')->name('messages.create');
+        Route::get('/messages/{conversation}', 'show')->name('messages.show');
+        Route::post('/messages', 'store')->name('messages.store');
+        Route::post('/messages/{user}/reply', 'reply')->name('messages.reply');
+        Route::post('/messages/start/{user}', 'startConversation')->name('messages.start');
+    });
+    
+    // Route pour vérifier les nouveaux messages (temps réel)
+    Route::get('/check-new-messages', [App\Http\Controllers\MessageCheckController::class, 'checkNewMessages'])->name('messages.check');
+    
     // Routes pour les favoris
     Route::controller(FavoriteController::class)->group(function () {
         Route::get('/favorites', 'index')->name('favorites.index');
-        Route::post('/favorites/{vehicle}', 'toggle')->name('favorites.toggle');
+        Route::post('/favorites/{vehicle}', 'store')->name('favorites.store');
         Route::delete('/favorites/{vehicle}', 'destroy')->name('favorites.destroy');
-    });
-
-    // Routes pour les messages
-    Route::middleware(['auth'])->group(function () {
-    Route::get('/messages', [App\Http\Controllers\MessageController::class, 'index'])->name('messages.index');
-    Route::get('/messages/create', [App\Http\Controllers\MessageController::class, 'create'])->name('messages.create');
-    Route::post('/messages', [App\Http\Controllers\MessageController::class, 'store'])->name('messages.store');
-    Route::get('/messages/{user}', [App\Http\Controllers\MessageController::class, 'show'])->name('messages.show');
-    Route::post('/messages/{user}/reply', [App\Http\Controllers\MessageController::class, 'reply'])->name('messages.reply');
     });
 
     // Routes pour les avis
@@ -117,35 +131,53 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/profile/vehicles', 'vehicles')->name('profile.vehicles');
         Route::delete('/profile', 'destroy')->name('profile.destroy');
     });
+    
+    // Routes pour le profil d'entreprise
+    Route::controller(\App\Http\Controllers\CompanyProfileController::class)->group(function () {
+        Route::get('/profile/company', 'edit')->name('profile.company.edit');
+        Route::put('/profile/company', 'update')->name('profile.company.update');
+        Route::get('/check-company-profile', 'checkProfileBeforeVehicleCreation')->name('profile.company.check');
+    });
+    
+    // Routes pour le profil de vendeur particulier
+    Route::controller(\App\Http\Controllers\SellerProfileController::class)->group(function () {
+        Route::get('/profile/seller', 'edit')->name('profile.seller.edit');
+        Route::put('/profile/seller', 'update')->name('profile.seller.update');
+        Route::get('/check-seller-profile', 'checkProfileBeforeVehicleCreation')->name('profile.seller.check');
+    });
 });
 
 // Routes d'administration (nécessitent le rôle d'administrateur)
-Route::middleware(['auth', 'admin'])->prefix('admin')->name('admin.')->group(function () {
+Route::prefix('admin')->name('admin.')->middleware(['auth'])->group(function () {
     // Tableau de bord d'administration
     Route::get('/', [AdminController::class, 'index'])->name('index');
-
+    Route::get('/statistics', [AdminController::class, 'statistics'])->name('statistics');
+    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
+    Route::post('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
+    
     // Gestion des utilisateurs
     Route::resource('users', AdminUserController::class);
 
     // Gestion des véhicules
     Route::resource('vehicles', AdminVehicleController::class);
-    Route::get('/vehicles/{vehicle}', [App\Http\Controllers\VehicleController::class, 'show'])->name('vehicles.show');
-
+    Route::delete('/vehicles/{vehicle}/images/{image}', [AdminVehicleController::class, 'deleteImage'])->name('vehicles.delete-image');
+    Route::patch('/vehicles/{vehicle}/toggle-featured', [AdminVehicleController::class, 'toggleFeatured'])->name('vehicles.toggle-featured');
+    
     // Gestion des marques
     Route::resource('brands', AdminBrandController::class);
 
     // Gestion des types de véhicules
     Route::resource('vehicle-types', AdminVehicleTypeController::class);
-
+    
     // Gestion des avis
     Route::resource('reviews', AdminReviewController::class);
-
-    // Statistiques
-    Route::get('/statistics', [AdminController::class, 'statistics'])->name('statistics');
-
-    // Paramètres du site
-    Route::get('/settings', [AdminController::class, 'settings'])->name('settings');
-    Route::put('/settings', [AdminController::class, 'updateSettings'])->name('settings.update');
+    Route::patch('/reviews/{review}/toggle-approval', [AdminReviewController::class, 'toggleApproval'])->name('reviews.toggle-approval');
+    
+    // Routes pour les messages
+    Route::get('/messages', [AdminMessageController::class, 'index'])->name('messages.index');
+    Route::get('/messages/statistics', [AdminMessageController::class, 'statistics'])->name('messages.statistics');
+    Route::get('/messages/{conversation}', [AdminMessageController::class, 'show'])->name('messages.show');
+    Route::delete('/messages/{conversation}', [AdminMessageController::class, 'destroy'])->name('messages.destroy');
 
     //Recherche
     Route::get('/search', [App\Http\Controllers\SearchController::class, 'index'])->name('search');

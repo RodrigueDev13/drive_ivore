@@ -36,9 +36,36 @@
                 </div>
 
                 <div>
-                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Prix (€) *</label>
-                    <input type="number" name="price" id="price" value="{{ old('price') }}" required min="0" step="1"
+                    <label for="listing_type" class="block text-sm font-medium text-gray-700 mb-1">Type d'annonce *</label>
+                    <select name="listing_type" id="listing_type" required onchange="toggleRentalFields()"
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
+                        <option value="vente" {{ old('listing_type') == 'vente' ? 'selected' : '' }}>Vente</option>
+                        <option value="location" {{ old('listing_type') == 'location' ? 'selected' : '' }}>Location</option>
+                        <option value="vente_location" {{ old('listing_type') == 'vente_location' ? 'selected' : '' }}>Vente et Location</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label for="price" class="block text-sm font-medium text-gray-700 mb-1">Prix de vente (FCFA) <span id="price-required">*</span></label>
+                    <input type="number" name="price" id="price" value="{{ old('price') }}" min="0" step="1"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
+                </div>
+                
+                <div id="rental-price-container" style="display: none;">
+                    <label for="rental_price" class="block text-sm font-medium text-gray-700 mb-1">Prix de location (FCFA) <span id="rental-price-required"></span></label>
+                    <input type="number" name="rental_price" id="rental_price" value="{{ old('rental_price') }}" min="0" step="1"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
+                </div>
+                
+                <div id="rental-period-container" style="display: none;">
+                    <label for="rental_period" class="block text-sm font-medium text-gray-700 mb-1">Période de location <span id="rental-period-required"></span></label>
+                    <select name="rental_period" id="rental_period"
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
+                        <option value="">Sélectionner une période</option>
+                        <option value="jour" {{ old('rental_period') == 'jour' ? 'selected' : '' }}>Par jour</option>
+                        <option value="semaine" {{ old('rental_period') == 'semaine' ? 'selected' : '' }}>Par semaine</option>
+                        <option value="mois" {{ old('rental_period') == 'mois' ? 'selected' : '' }}>Par mois</option>
+                    </select>
                 </div>
 
                 <div>
@@ -108,6 +135,12 @@
                     <input type="text" name="location" id="location" value="{{ old('location') }}" required
                         class="w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
                 </div>
+                
+                <div class="md:col-span-2">
+                    <label for="color" class="block text-sm font-medium text-gray-700 mb-1">Couleur *</label>
+                    <input type="text" name="color" id="color" value="{{ old('color') }}" required
+                        class="w-full rounded-md border-gray-300 shadow-sm focus:border-teal-500 focus:ring focus:ring-teal-200 focus:ring-opacity-50">
+                </div>
             </div>
 
             <div class="mb-6">
@@ -126,13 +159,16 @@
                         <div class="flex text-sm text-gray-600">
                             <label for="images" class="relative cursor-pointer bg-white rounded-md font-medium text-teal-600 hover:text-teal-500 focus-within:outline-none focus-within:ring-2 focus-within:ring-offset-2 focus-within:ring-teal-500">
                                 <span>Télécharger des fichiers</span>
-                                <input id="images" name="images[]" type="file" class="sr-only" multiple accept="image/*">
+                                <input id="images" name="images[]" type="file" class="sr-only" multiple accept="image/*" onchange="previewImages(this)">
                             </label>
                             <p class="pl-1">ou glisser-déposer</p>
                         </div>
                         <p class="text-xs text-gray-500">PNG, JPG, GIF jusqu'à 2MB</p>
                     </div>
                 </div>
+                
+                <!-- Prévisualisation des images -->
+                <div id="image-preview" class="mt-4 grid grid-cols-2 md:grid-cols-4 gap-4"></div>
             </div>
 
             <div class="flex justify-end">
@@ -143,4 +179,85 @@
         </form>
     </div>
 </div>
+
+<script>
+    function previewImages(input) {
+        const preview = document.getElementById('image-preview');
+        preview.innerHTML = '';
+        
+        if (input.files) {
+            Array.from(input.files).forEach(file => {
+                const reader = new FileReader();
+                
+                reader.onload = function(e) {
+                    const div = document.createElement('div');
+                    div.className = 'relative';
+                    
+                    const img = document.createElement('img');
+                    img.src = e.target.result;
+                    img.className = 'w-full h-32 object-cover rounded-md';
+                    div.appendChild(img);
+                    
+                    const filename = document.createElement('p');
+                    filename.className = 'text-xs text-gray-500 mt-1 truncate';
+                    filename.textContent = file.name;
+                    div.appendChild(filename);
+                    
+                    preview.appendChild(div);
+                }
+                
+                reader.readAsDataURL(file);
+            });
+        }
+    }
+    
+    function toggleRentalFields() {
+        const listingType = document.getElementById('listing_type').value;
+        const rentalPriceContainer = document.getElementById('rental-price-container');
+        const rentalPeriodContainer = document.getElementById('rental-period-container');
+        const rentalPriceRequired = document.getElementById('rental-price-required');
+        const rentalPeriodRequired = document.getElementById('rental-period-required');
+        const priceRequired = document.getElementById('price-required');
+        const priceInput = document.getElementById('price');
+        const rentalPriceInput = document.getElementById('rental_price');
+        const rentalPeriodInput = document.getElementById('rental_period');
+        
+        // Réinitialiser tous les champs
+        rentalPriceContainer.style.display = 'none';
+        rentalPeriodContainer.style.display = 'none';
+        rentalPriceRequired.textContent = '';
+        rentalPeriodRequired.textContent = '';
+        priceRequired.textContent = '*';
+        priceInput.required = true;
+        rentalPriceInput.required = false;
+        rentalPeriodInput.required = false;
+        
+        if (listingType === 'location') {
+            // Si c'est une location, afficher les champs de location et masquer le prix de vente
+            rentalPriceContainer.style.display = 'block';
+            rentalPeriodContainer.style.display = 'block';
+            rentalPriceRequired.textContent = '*';
+            rentalPeriodRequired.textContent = '*';
+            priceRequired.textContent = '';
+            priceInput.required = false;
+            rentalPriceInput.required = true;
+            rentalPeriodInput.required = true;
+        } else if (listingType === 'vente_location') {
+            // Si c'est vente et location, afficher tous les champs
+            rentalPriceContainer.style.display = 'block';
+            rentalPeriodContainer.style.display = 'block';
+            rentalPriceRequired.textContent = '*';
+            rentalPeriodRequired.textContent = '*';
+            priceRequired.textContent = '*';
+            priceInput.required = true;
+            rentalPriceInput.required = true;
+            rentalPeriodInput.required = true;
+        }
+    }
+    
+    // Exécuter au chargement de la page pour initialiser l'état des champs
+    document.addEventListener('DOMContentLoaded', function() {
+        toggleRentalFields();
+    });
+</script>
 @endsection

@@ -47,8 +47,13 @@ class VehicleController extends Controller
         $vehicles = $query->paginate(12);
         $brands = Brand::orderBy('name')->get();
         $vehicleTypes = VehicleType::orderBy('name')->get();
+        
+        // Ajouter un véhicule mis en avant pour la section "Articles populaires"
+        $featuredVehicle = Vehicle::where('is_featured', true)
+            ->with(['brand', 'images'])
+            ->first();
 
-        return view('vehicles.index', compact('vehicles', 'brands', 'vehicleTypes'));
+        return view('vehicles.index', compact('vehicles', 'brands', 'vehicleTypes', 'featuredVehicle'));
     }
 
     /**
@@ -56,9 +61,32 @@ class VehicleController extends Controller
      */
     public function create()
     {
+        $user = auth()->user();
+        
+        // Vérifier si l'utilisateur peut créer une annonce
+        if (!$user->canCreateVehicleListing()) {
+            // Rediriger vers le profil approprié selon le type d'utilisateur
+            if ($user->user_type === 'entreprise') {
+                return redirect()->route('profile.company.edit')
+                    ->with('error', 'Vous devez compléter votre profil d\'entreprise avant de pouvoir créer une annonce.');
+            } elseif ($user->user_type === 'particulier' && $user->is_seller) {
+                return redirect()->route('profile.seller.edit')
+                    ->with('error', 'Vous devez compléter votre profil vendeur avant de pouvoir créer une annonce.');
+            } else {
+                // Particulier non vendeur - ne devrait pas arriver car la navigation est cachée
+                return redirect()->route('home')
+                    ->with('error', 'Vous n\'avez pas les droits pour créer une annonce.');
+            }
+        }
+        
         $brands = Brand::orderBy('name')->get();
-        $vehicleTypes = VehicleType::orderBy('name')->get();
-        return view('vehicles.create', compact('brands', 'vehicleTypes'));
+        $fuels = Fuel::all();
+        $transmissions = Transmission::all();
+        $vehicleTypes = VehicleType::all();
+        $colors = Color::all();
+        $features = Feature::all();
+        
+        return view('vehicles.create', compact('brands', 'fuels', 'transmissions', 'vehicleTypes', 'colors', 'features'));
     }
 
     /**
@@ -66,29 +94,70 @@ class VehicleController extends Controller
      */
     public function store(Request $request)
     {
-        $request->validate([
+        $user = auth()->user();
+        
+        // Vérifier si l'utilisateur peut créer une annonce
+        if (!$user->canCreateVehicleListing()) {
+            // Rediriger vers le profil approprié selon le type d'utilisateur
+            if ($user->user_type === 'entreprise') {
+                return redirect()->route('profile.company.edit')
+                    ->with('error', 'Vous devez compléter votre profil d\'entreprise avant de pouvoir créer une annonce.');
+            } elseif ($user->user_type === 'particulier' && $user->is_seller) {
+                return redirect()->route('profile.seller.edit')
+                    ->with('error', 'Vous devez compléter votre profil vendeur avant de pouvoir créer une annonce.');
+            } else {
+                // Particulier non vendeur - ne devrait pas arriver car la navigation est cachée
+                return redirect()->route('home')
+                    ->with('error', 'Vous n\'avez pas les droits pour créer une annonce.');
+            }
+        }
+        
+        // Préparer les règles de validation de base
+        $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
+            'listing_type' => 'required|in:vente,location,vente_location',
             'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
             'mileage' => 'required|integer|min:0',
             'fuel_type' => 'required|string|max:50',
             'transmission' => 'required|string|max:50',
             'location' => 'required|string|max:255',
+            'color' => 'required|string|max:50',
             'brand_id' => 'required|exists:brands,id',
             'vehicle_type_id' => 'required|exists:vehicle_types,id',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
-        ]);
+        ];
+        
+        // Ajouter des règles spécifiques en fonction du type d'annonce
+        if ($request->listing_type === 'vente' || $request->listing_type === 'vente_location') {
+            $rules['price'] = 'required|numeric|min:0';
+        } else {
+            $rules['price'] = 'nullable|numeric|min:0';
+        }
+        
+        if ($request->listing_type === 'location' || $request->listing_type === 'vente_location') {
+            $rules['rental_price'] = 'required|numeric|min:0';
+            $rules['rental_period'] = 'required|in:jour,semaine,mois';
+        } else {
+            $rules['rental_price'] = 'nullable|numeric|min:0';
+            $rules['rental_period'] = 'nullable|in:jour,semaine,mois';
+        }
+        
+        $request->validate($rules);
 
         $vehicle = new Vehicle();
         $vehicle->title = $request->title;
         $vehicle->description = $request->description;
-        $vehicle->price = $request->price;
+        $vehicle->listing_type = $request->listing_type;
+        $vehicle->price = $request->price ?? 0;
+        $vehicle->rental_price = $request->rental_price ?? null;
+        $vehicle->rental_period = $request->rental_period ?? null;
         $vehicle->year = $request->year;
         $vehicle->mileage = $request->mileage;
         $vehicle->fuel_type = $request->fuel_type;
         $vehicle->transmission = $request->transmission;
         $vehicle->location = $request->location;
+        $vehicle->color = $request->color;
         $vehicle->brand_id = $request->brand_id;
         $vehicle->vehicle_type_id = $request->vehicle_type_id;
         $vehicle->user_id = auth()->id();
@@ -158,29 +227,52 @@ class VehicleController extends Controller
                 ->with('error', 'Vous n\'êtes pas autorisé à modifier ce véhicule.');
         }
 
-        $request->validate([
+        // Préparer les règles de validation de base
+        $rules = [
             'title' => 'required|string|max:255',
             'description' => 'required|string',
-            'price' => 'required|numeric|min:0',
+            'listing_type' => 'required|in:vente,location,vente_location',
             'year' => 'required|integer|min:1900|max:' . (date('Y') + 1),
             'mileage' => 'required|integer|min:0',
             'fuel_type' => 'required|string|max:50',
             'transmission' => 'required|string|max:50',
             'location' => 'required|string|max:255',
+            'color' => 'required|string|max:50',
             'brand_id' => 'required|exists:brands,id',
             'vehicle_type_id' => 'required|exists:vehicle_types,id',
             'images.*' => 'image|mimes:jpeg,png,jpg,gif|max:2048',
             'delete_images' => 'nullable|array',
-        ]);
+        ];
+        
+        // Ajouter des règles spécifiques en fonction du type d'annonce
+        if ($request->listing_type === 'vente' || $request->listing_type === 'vente_location') {
+            $rules['price'] = 'required|numeric|min:0';
+        } else {
+            $rules['price'] = 'nullable|numeric|min:0';
+        }
+        
+        if ($request->listing_type === 'location' || $request->listing_type === 'vente_location') {
+            $rules['rental_price'] = 'required|numeric|min:0';
+            $rules['rental_period'] = 'required|in:jour,semaine,mois';
+        } else {
+            $rules['rental_price'] = 'nullable|numeric|min:0';
+            $rules['rental_period'] = 'nullable|in:jour,semaine,mois';
+        }
+        
+        $request->validate($rules);
 
         $vehicle->title = $request->title;
         $vehicle->description = $request->description;
-        $vehicle->price = $request->price;
+        $vehicle->listing_type = $request->listing_type;
+        $vehicle->price = $request->price ?? 0;
+        $vehicle->rental_price = $request->rental_price ?? null;
+        $vehicle->rental_period = $request->rental_period ?? null;
         $vehicle->year = $request->year;
         $vehicle->mileage = $request->mileage;
         $vehicle->fuel_type = $request->fuel_type;
         $vehicle->transmission = $request->transmission;
         $vehicle->location = $request->location;
+        $vehicle->color = $request->color;
         $vehicle->brand_id = $request->brand_id;
         $vehicle->vehicle_type_id = $request->vehicle_type_id;
         $vehicle->save();
@@ -232,5 +324,39 @@ class VehicleController extends Controller
 
         return redirect()->route('vehicles.index')
             ->with('success', 'Véhicule supprimé avec succès !');
+    }
+    
+    /**
+     * Affiche les véhicules d'une marque spécifique.
+     */
+    public function byBrand(Brand $brand)
+    {
+        $vehicles = Vehicle::where('brand_id', $brand->id)
+            ->with(['brand', 'vehicleType', 'images'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+            
+        return view('vehicles.filtered', [
+            'vehicles' => $vehicles,
+            'currentBrand' => $brand,
+            'title' => 'Véhicules ' . $brand->name
+        ]);
+    }
+    
+    /**
+     * Affiche les véhicules d'un type spécifique.
+     */
+    public function byType(VehicleType $type)
+    {
+        $vehicles = Vehicle::where('vehicle_type_id', $type->id)
+            ->with(['brand', 'vehicleType', 'images'])
+            ->orderBy('created_at', 'desc')
+            ->paginate(12);
+            
+        return view('vehicles.filtered', [
+            'vehicles' => $vehicles,
+            'currentType' => $type,
+            'title' => 'Véhicules de type ' . $type->name
+        ]);
     }
 }

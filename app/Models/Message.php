@@ -51,7 +51,13 @@ class Message extends Model
      */
     public function scopeUnread($query)
     {
-        return $query->whereNull('read_at');
+        // Vérifier si la colonne read_at existe dans la table
+        if (\Schema::hasColumn('messages', 'read_at')) {
+            return $query->whereNull('read_at');
+        }
+        
+        // Si la colonne n'existe pas, retourner tous les messages (fallback)
+        return $query;
     }
 
     /**
@@ -59,8 +65,23 @@ class Message extends Model
      */
     public function markAsRead()
     {
-        if (is_null($this->read_at)) {
-            $this->update(['read_at' => now()]);
+        // Vérifier si la colonne read_at existe dans la table
+        if (\Schema::hasColumn('messages', 'read_at')) {
+            if (is_null($this->read_at)) {
+                $this->update(['read_at' => now()]);
+            }
         }
+        // Si la colonne n'existe pas, ne rien faire
+        return $this;
+    }
+
+    /**
+     * Get all messages for a conversation.
+     */
+    public static function getConversationMessages($conversationId)
+    {
+        return self::where('conversation_id', $conversationId)
+            ->orderBy('created_at', 'asc')
+            ->get();
     }
 }

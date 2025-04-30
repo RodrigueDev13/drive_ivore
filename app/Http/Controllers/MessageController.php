@@ -25,15 +25,44 @@ class MessageController extends Controller
      */
     public function show($userId)
     {
+        // Récupérer l'autre utilisateur
         $otherUser = User::findOrFail($userId);
+        
+        // Ajouter des logs pour déboguer
+        \Log::info('Affichage conversation avec utilisateur: ' . $userId);
+        
+        // Créer ou récupérer la conversation
         $conversation = auth()->user()->getOrCreateConversationWith($userId);
+        
+        // Vérifier si la conversation existe bien
+        if (!$conversation) {
+            \Log::error('Conversation introuvable pour les utilisateurs: ' . auth()->id() . ' et ' . $userId);
+            return redirect()->route('messages.index')->with('error', 'Conversation introuvable.');
+        }
+        
+        \Log::info('Conversation trouvée: ' . $conversation->id);
+        \Log::info('user_one_id: ' . $conversation->user_one_id . ', user_two_id: ' . $conversation->user_two_id);
+        
+        // Charger les relations nécessaires
+        $conversation->load('vehicle');
+        
+        // Récupérer tous les messages de la conversation
         $messages = Message::where('conversation_id', $conversation->id)
+            ->with('user') // Charger la relation utilisateur pour chaque message
             ->orderBy('created_at', 'asc')
             ->get();
-
+        
+        \Log::info('Nombre de messages trouvés: ' . $messages->count());
+        
+        // Déboguer les messages
+        foreach ($messages as $index => $message) {
+            \Log::info("Message {$index}: user_id={$message->user_id}, content={$message->content}");
+        }
+        
         // Marquer les messages non lus comme lus
         foreach ($messages as $message) {
-            if ($message->user_id !== auth()->id() && is_null($message->read_at)) {
+            if ($message->user_id !== auth()->id()) {
+                // La méthode markAsRead() vérifie maintenant si la colonne existe
                 $message->markAsRead();
             }
         }
