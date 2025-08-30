@@ -1,66 +1,225 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <header>
+        <div class="header-conte                <li><strong>Accéder à l'application :</strong>
+                    <p>Ouvrir <a href="http://localhost:8000" target="_blank" class="button">http://localhost:8000</a> dans votre navigateur.</p>
+                </li>
+            </ol>
+        </section>
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+        <section>
+            <h2>Fonctionnalités principales</h2>
+            <ul>        <div class="logo">Drive Ivoire</div>
+            <div class="tagline">La plateforme d'achat, vente et location de véhicules en Côte d'Ivoire</div>
+        </div>
+    </header>
+    <main>
+        <section>
+            <h2>À propos du projet</h2>
+            <p>Drive Ivoire est une plateforme web permettant d'acheter, vendre et louer des véhicules en Côte d'Ivoire. Elle facilite la mise en relation entre particuliers et entreprises, propose un système de messagerie interne, la gestion des favoris, des avis sur les véhicules, et offre une interface d'administration complète pour la gestion des utilisateurs, annonces, marques et types de véhicules.</p>
+        </section>EADME - Drive Ivoire</title>
+    <style>
+        body {
+            font-family: 'Figtree', 'Segoe UI', Roboto, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        header {
+            background: #00A99D; /* drive-teal */
+            color: #fff;
+            padding: 2rem 0;
+            text-align: center;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        .header-content {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+        .logo {
+            font-size: 2.5rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
+        }
+        .tagline {
+            font-size: 1.2rem;
+            opacity: 0.9;
+        }
+        main {
+            padding: 2rem;
+            max-width: 900px;
+            margin: auto;
+            background: #fff;
+            box-shadow: 0 2px 15px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            margin-top: -30px;
+        }
+        h1, h2, h3 {
+            color: #00A99D; /* drive-teal */
+        }
+        h2 {
+            border-bottom: 2px solid #F7B500; /* drive-yellow */
+            padding-bottom: 0.5rem;
+            margin-top: 2rem;
+        }
+        section {
+            margin-bottom: 2.5rem;
+        }
+        ul {
+            margin: 1rem 0;
+            padding-left: 1.5rem;
+        }
+        ul li {
+            margin-bottom: 0.5rem;
+            position: relative;
+        }
+        ul li::before {
+            content: "";
+            position: absolute;
+            left: -1.2rem;
+            top: 0.6rem;
+            width: 8px;
+            height: 8px;
+            background-color: #F7B500; /* drive-yellow */
+            border-radius: 50%;
+        }
+        code {
+            background: #f4f4f4;
+            padding: 0.2rem 0.4rem;
+            border-radius: 4px;
+            border-left: 3px solid #00A99D; /* drive-teal */
+        }
+        pre {
+            background-color: #f8f8f8;
+            padding: 1rem;
+            border-radius: 6px;
+            overflow-x: auto;
+            border-left: 4px solid #F7B500; /* drive-yellow */
+        }
+        a {
+            color: #00A99D; /* drive-teal */
+            text-decoration: none;
+            font-weight: 500;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .button {
+            display: inline-block;
+            background-color: #00A99D; /* drive-teal */
+            color: white;
+            padding: 0.5rem 1rem;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        .button:hover {
+            background-color: #008f85;
+            text-decoration: none;
+        }
+        ol {
+            counter-reset: item;
+            padding-left: 0;
+        }
+        ol li {
+            display: block;
+            margin-bottom: 1.5rem;
+            position: relative;
+            padding-left: 2.5rem;
+        }
+        ol li::before {
+            content: counter(item);
+            counter-increment: item;
+            background-color: #F7B500; /* drive-yellow */
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            left: 0;
+            top: 0;
+            font-weight: bold;
+        }
+        footer {
+            text-align: center;
+            margin-top: 3rem;
+            padding: 1.5rem 0;
+            background-color: #00A99D; /* drive-teal */
+            color: white;
+            border-radius: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Drive Ivoire</h1>
+    </header>
+    <main>
+        <section>
+            <h2>À propos du projet</h2>
+            <p>Drive Ivoire est une plateforme web permettant d’acheter, vendre et louer des véhicules en Côte d’Ivoire. Elle facilite la mise en relation entre particuliers et entreprises, propose un système de messagerie interne, la gestion des favoris, des avis sur les véhicules, et offre une interface d’administration complète pour la gestion des utilisateurs, annonces, marques et types de véhicules.</p>
+        </section>
 
-## About Laravel
+        <section>
+            <h2>Comment lancer le projet</h2>
+            <ol>
+                <li><strong>Cloner le dépôt :</strong>
+                    <pre><code>git clone &lt;url-du-repo&gt;
+cd drive_ivore</code></pre>
+                </li>
+                <li><strong>Installer les dépendances PHP et JS :</strong>
+                    <pre><code>composer install
+npm install</code></pre>
+                </li>
+                <li><strong>Configurer l’environnement :</strong>
+                    <ul>
+                        <li>Copier <code>.env.example</code> vers <code>.env</code> et adapter les variables (base de données, mail, etc.).</li>
+                        <li>Générer la clé d’application :
+                            <pre><code>php artisan key:generate</code></pre>
+                        </li>
+                    </ul>
+                </li>
+                <li><strong>Lancer les migrations et seeders :</strong>
+                    <pre><code>php artisan migrate --seed</code></pre>
+                </li>
+                <li><strong>Démarrer le serveur de développement :</strong>
+                    <pre><code>php artisan serve
+npm run dev</code></pre>
+                </li>
+                <li><strong>Accéder à l’application :</strong>
+                    <p>Ouvrir <a href="http://localhost:8000" target="_blank">http://localhost:8000</a> dans votre navigateur.</p>
+                </li>
+            </ol>
+        </section>
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
-
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
-
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
-
-## Learning Laravel
-
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
-
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
-
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
-
-## Laravel Sponsors
-
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
-
-### Premium Partners
-
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
-
-## Contributing
-
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
-
-## License
-
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+        <section>
+            <h2>Fonctionnalités principales</h2>
+            <ul>
+                <li>Gestion des annonces de véhicules : publication, modification, suppression, filtrage par marque et type.</li>
+                <li>Messagerie interne : communication directe entre acheteurs et vendeurs.</li>
+                <li>Favoris : ajout et gestion des véhicules favoris.</li>
+                <li>Avis et notes : possibilité de laisser un avis sur un véhicule.</li>
+                <li>Profils utilisateurs : profils particuliers, vendeurs et entreprises avec informations personnalisées.</li>
+                <li>Tableau de bord administrateur : gestion des utilisateurs, véhicules, marques, types, statistiques et modération des avis/messages.</li>
+                <li>Notifications en temps réel : alertes pour nouveaux messages et activités.</li>
+                <li>Progressive Web App (PWA) : installation sur mobile, fonctionnement hors ligne, notifications push.</li>
+                <li>Sécurité : authentification, gestion des rôles, protection des routes sensibles.</li>
+            </ul>
+        </section>
+    </main>
+    <footer>
+        <p>&copy; 2025 Drive Ivoire. Tous droits réservés.</p>
+        <p>Développé avec passion par l'équipe Drive Ivoire</p>
+    </footer>
+</body>
+</html>
